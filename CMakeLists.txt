@@ -1,5 +1,16 @@
 set(target_prefix scratch_)
 
+# Find and include jsoncpp
+find_path(JSONCPP_INCLUDE_DIR json/json.h PATHS /usr/include/jsoncpp /usr/include /usr/local/include)
+find_library(JSONCPP_LIBRARY NAMES jsoncpp PATHS /usr/lib /usr/local/lib)
+
+if(NOT JSONCPP_INCLUDE_DIR OR NOT JSONCPP_LIBRARY)
+    message(FATAL_ERROR "jsoncpp library not found. Ensure jsoncpp-dev is installed.")
+endif()
+
+include_directories(${JSONCPP_INCLUDE_DIR})
+link_libraries(${JSONCPP_LIBRARY})
+
 function(create_scratch source_files)
   # Return early if no sources in the subdirectory
   list(LENGTH source_files number_sources)
@@ -68,7 +79,7 @@ function(create_scratch source_files)
           EXECNAME ${scratch_name}
           EXECNAME_PREFIX ${target_prefix}
           SOURCE_FILES "${source_files}"
-          LIBRARIES_TO_LINK "${ns3-libs}" "${ns3-contrib-libs}"
+          LIBRARIES_TO_LINK "${ns3-libs}" "${ns3-contrib-libs}" ${JSONCPP_LIBRARY}
           EXECUTABLE_DIRECTORY_PATH ${scratch_directory}/
   )
 endfunction()
